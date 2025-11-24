@@ -33,7 +33,7 @@ export default function Home() {
             올해 가장 빛난 동료를 선택해주세요
           </p>
           <p className="text-sm text-gray-500 animate-fade-in-delay-2">
-            이상형 월드컵 방식으로 5명의 후보 중 1명을 선택합니다
+            이상형 월드컵 방식으로 후보 중 1명을 선택합니다
           </p>
         </div>
 

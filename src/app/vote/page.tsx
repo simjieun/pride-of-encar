@@ -32,8 +32,8 @@ export default function VotePage() {
       return
     }
 
-    if (!data || data.length !== 5) {
-      alert('후보자가 5명이 아닙니다. 관리자에게 문의해주세요.')
+    if (!data || data.length < 2) {
+      alert('후보자가 2명 이상이어야 합니다. 관리자에게 문의해주세요.')
       setLoading(false)
       return
     }
@@ -44,14 +44,16 @@ export default function VotePage() {
     setLoading(false)
   }
 
+  const totalRounds = shuffledCandidates.length - 1
+
   const getCurrentMatchup = (): [Candidate, Candidate] | null => {
-    if (shuffledCandidates.length !== 5) return null
+    if (shuffledCandidates.length < 2) return null
 
     if (currentRound === 0) {
       return [shuffledCandidates[0], shuffledCandidates[1]]
     } else if (currentWinner) {
       const nextOpponentIndex = currentRound + 1
-      if (nextOpponentIndex <= 4) {
+      if (nextOpponentIndex < shuffledCandidates.length) {
         return [currentWinner, shuffledCandidates[nextOpponentIndex]]
       }
     }
@@ -67,7 +69,9 @@ export default function VotePage() {
     // 애니메이션 대기
     await new Promise(resolve => setTimeout(resolve, 600))
 
-    if (currentRound < 3) {
+    const isLastRound = currentRound >= totalRounds - 1
+
+    if (!isLastRound) {
       setCurrentWinner(selected)
       setCurrentRound(currentRound + 1)
       setSelectedId(null)
@@ -124,7 +128,12 @@ export default function VotePage() {
   }
 
   const [candidateA, candidateB] = matchup
-  const roundLabels = ['1라운드', '2라운드', '3라운드', '🏆 결승']
+
+  // 동적으로 라운드 라벨 생성
+  const getRoundLabel = (round: number) => {
+    if (round === totalRounds - 1) return '🏆 결승'
+    return `${round + 1}라운드`
+  }
 
   const categoryColors: Record<string, string> = {
     'AI': 'from-cyan-400 to-blue-500',
@@ -155,10 +164,10 @@ export default function VotePage() {
           {/* 라운드 표시 */}
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full border border-white/20">
             <span className="text-2xl font-bold text-white">
-              {roundLabels[currentRound]}
+              {getRoundLabel(currentRound)}
             </span>
             <div className="flex gap-1 ml-2">
-              {[0, 1, 2, 3].map((round) => (
+              {Array.from({ length: totalRounds }, (_, i) => i).map((round) => (
                 <div
                   key={round}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
@@ -273,8 +282,8 @@ export default function VotePage() {
         {/* 진행 상태 */}
         <div className="mt-12 text-center">
           <p className="text-blue-200/60 text-sm">
-            {currentRound < 3
-              ? `남은 대결: ${3 - currentRound}번`
+            {currentRound < totalRounds - 1
+              ? `남은 대결: ${totalRounds - 1 - currentRound}번`
               : '마지막 대결입니다!'}
           </p>
         </div>
